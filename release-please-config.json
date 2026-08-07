@@ -4,7 +4,9 @@
     ".": {
       "release-type": "go",
       "package-name": "openbao-plugin-secrets-github",
-      "include-component-in-tag": false
+      "include-component-in-tag": false,
+      "bump-minor-pre-major": true,
+      "bump-patch-for-minor-pre-major": true
     }
   }
 }
