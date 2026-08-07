@@ -35,13 +35,48 @@ jobs:
         with:
           go-version-file: go.mod
 
+      - name: Resolve build metadata
+        id: meta
+        env:
+          RELEASE_TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "version=${RELEASE_TAG#v}" >> "$GITHUB_OUTPUT"
+
       - name: Build binaries
+        # -X injections replace what .goreleaser.yml used to provide before
+        # it was deleted as dead config -- without projectName, client.go
+        # sends every GitHub API request with an empty User-Agent, which
+        # GitHub's WAF rejects outright (403, live-reproduced against
+        # camden's plugin). projectDocs/projectVersion feed the plugin's
+        # own /info path; the prometheus/common/version vars are read by
+        # path_info.go for the same endpoint.
+        #
+        # Deliberately NOT injecting version.BuildDate or version.BuildUser
+        # (upstream's goreleaser set both). OpenBao pins an immutable
+        # sha256 of this binary while the image tag is mutable, so the
+        # build must be reproducible -- a timestamp or a username makes
+        # every rebuild of the same tag hash differently and would
+        # silently break a running OpenBao on any re-run. Every value
+        # injected below is constant for a given tag/commit.
+        env:
+          RELEASE_TAG: ${{ steps.tag.outputs.tag }}
+          BUILD_VERSION: ${{ steps.meta.outputs.version }}
+          BUILD_COMMIT: ${{ steps.meta.outputs.commit }}
+          MODULE_PATH: github.com/rknightion/openbao-plugin-secrets-github
         run: |
           mkdir -p dist
+          LDFLAGS="-s -w"
+          LDFLAGS="$LDFLAGS -X ${MODULE_PATH}/github.projectName=openbao-plugin-secrets-github"
+          LDFLAGS="$LDFLAGS -X ${MODULE_PATH}/github.projectDocs=https://${MODULE_PATH}"
+          LDFLAGS="$LDFLAGS -X ${MODULE_PATH}/github.projectVersion=${RELEASE_TAG}"
+          LDFLAGS="$LDFLAGS -X github.com/prometheus/common/version.Version=${BUILD_VERSION}"
+          LDFLAGS="$LDFLAGS -X github.com/prometheus/common/version.Revision=${BUILD_COMMIT}"
+          LDFLAGS="$LDFLAGS -X github.com/prometheus/common/version.Branch=main"
           for arch in amd64 arm64; do
             GOOS=linux GOARCH=$arch CGO_ENABLED=0 go build \
               -trimpath \
-              -ldflags "-s -w" \
+              -ldflags "$LDFLAGS" \
               -o "dist/openbao-plugin-secrets-github_linux_${arch}" .
           done
 
