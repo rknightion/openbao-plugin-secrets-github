@@ -1,0 +1,13 @@
+openbao-plugin-secrets-github
+
+Copyright 2026 Rob Knight
+
+This product includes software developed by Martin Baillie as
+vault-plugin-secrets-github (https://github.com/martinbaillie/vault-plugin-secrets-github),
+licensed under the Apache License, Version 2.0.
+
+Modifications by this fork:
+  - Ported from the HashiCorp Vault SDK to the OpenBao SDK
+    (github.com/openbao/openbao/{api,sdk}/v2).
+  - Repackaged for distribution as an OCI image consumable by OpenBao's
+    declarative plugin configuration.
