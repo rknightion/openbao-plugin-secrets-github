@@ -26,7 +26,7 @@ plugin_directory = "/openbao/plugins"
 
 plugin "secret" "github" {
   image       = "ghcr.io/rknightion/openbao-plugin-secrets-github"
-  version     = "v2.3.0"
+  version     = "v0.1.0"
   binary_name = "openbao-plugin-secrets-github"
   sha256sum   = "<binary sha256 from the release checksums file>"
 }

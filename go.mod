@@ -1,4 +1,4 @@
-module github.com/rknightion/openbao-plugin-secrets-github/v2
+module github.com/rknightion/openbao-plugin-secrets-github
 
 go 1.25.0
 

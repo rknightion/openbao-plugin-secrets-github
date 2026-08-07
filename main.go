@@ -8,7 +8,7 @@ import (
 	"github.com/openbao/openbao/api/v2"
 	"github.com/openbao/openbao/sdk/v2/plugin"
 
-	"github.com/rknightion/openbao-plugin-secrets-github/v2/github"
+	"github.com/rknightion/openbao-plugin-secrets-github/github"
 )
 
 func main() {
