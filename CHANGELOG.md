@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.1](https://github.com/rknightion/openbao-plugin-secrets-github/compare/v0.1.0...v0.1.1) (2026-08-07)
+
+
+### Bug Fixes
+
+* attach release assets via gh release upload, not action-gh-release ([d51b756](https://github.com/rknightion/openbao-plugin-secrets-github/commit/d51b75697f4cc026554098b7e0e4eb21d93554f2)), closes [#1](https://github.com/rknightion/openbao-plugin-secrets-github/issues/1)
+* restore linker-injected build metadata dropped with .goreleaser.yml ([515a239](https://github.com/rknightion/openbao-plugin-secrets-github/commit/515a2392f8714295b812c2a6800afc49160aeb16)), closes [#1](https://github.com/rknightion/openbao-plugin-secrets-github/issues/1)
+* split publish out of release.yml, gated on the release event not action outputs ([48f9f1e](https://github.com/rknightion/openbao-plugin-secrets-github/commit/48f9f1ed8216f4f4a0d5f60bff45c5d1fb71c7cc)), closes [#1](https://github.com/rknightion/openbao-plugin-secrets-github/issues/1)
+* use the release-please PAT to update an existing release's assets ([4751660](https://github.com/rknightion/openbao-plugin-secrets-github/commit/47516609b38a64fb91deae4d2437c9372418dca1)), closes [#1](https://github.com/rknightion/openbao-plugin-secrets-github/issues/1)
+
 ## 0.1.0 (2026-08-07)
 
 
