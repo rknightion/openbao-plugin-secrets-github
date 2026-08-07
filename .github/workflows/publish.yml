@@ -13,6 +13,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: publish-${{ github.event.release.tag_name || inputs.tag }}
+  cancel-in-progress: false
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -25,6 +29,14 @@ jobs:
         env:
           RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
         run: |
+          # RELEASE_TAG is interpolated into a multi-line `tags: |` block
+          # further down. A dispatch input containing a newline could append
+          # an arbitrary extra image tag, so reject anything that isn't a
+          # single line matching a version tag.
+          if [[ "$(printf '%s' "$RELEASE_TAG" | wc -l)" -ne 0 ]] || ! [[ "$RELEASE_TAG" =~ ^v[0-9] ]]; then
+            echo "::error::resolved tag '$RELEASE_TAG' is not a single line matching ^v[0-9] -- refusing to build/push" >&2
+            exit 1
+          fi
           echo "tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -59,6 +71,19 @@ jobs:
         # every rebuild of the same tag hash differently and would
         # silently break a running OpenBao on any re-run. Every value
         # injected below is constant for a given tag/commit.
+        #
+        # -buildvcs=false: `go build` defaults to -buildvcs=auto, which
+        # stamps the current commit SHA into the binary. That makes the
+        # hash a function of commit + build inputs, not source alone --
+        # building the same tag from a moving ref (or re-running publish
+        # after main has advanced) can silently produce a different
+        # commit and therefore a different hash. Disabling vcs stamping
+        # makes the artifact a pure function of source, matching the
+        # reproducibility this stanza already relies on. Given a fixed
+        # commit and Go version the build is fully reproducible either
+        # way -- confirmed byte-identical for v0.1.0 and v0.1.1, both
+        # arches, on independent rebuilds. This flag changes the hash for
+        # the next release versus prior ones; that's expected, one-time.
         env:
           RELEASE_TAG: ${{ steps.tag.outputs.tag }}
           BUILD_VERSION: ${{ steps.meta.outputs.version }}
@@ -76,9 +101,22 @@ jobs:
           for arch in amd64 arm64; do
             GOOS=linux GOARCH=$arch CGO_ENABLED=0 go build \
               -trimpath \
+              -buildvcs=false \
               -ldflags "$LDFLAGS" \
               -o "dist/openbao-plugin-secrets-github_linux_${arch}" .
           done
+
+      - name: Verify projectName ldflag resolved
+        # go build -X on a symbol path that doesn't resolve is silently
+        # ignored (exit 0, no warning) -- this module's path has already
+        # been renamed once. If it breaks again, projectName is empty and
+        # every GitHub call goes out with an empty User-Agent, which
+        # GitHub's WAF 403s (this is exactly how v0.1.0 broke). Catch it
+        # here, in CI, instead of on a production secrets store.
+        run: |
+          strings dist/openbao-plugin-secrets-github_linux_amd64 \
+            | grep -F -x -q 'openbao-plugin-secrets-github' \
+            || { echo "::error::projectName ldflag did not resolve -- the binary would send an empty User-Agent"; exit 1; }
 
       - name: Generate checksums
         run: |
@@ -102,6 +140,34 @@ jobs:
           push: true
           tags: |
             ghcr.io/rknightion/openbao-plugin-secrets-github:${{ steps.tag.outputs.tag }}
+
+      - name: Verify pushed image matches checksums.txt
+        # The Containerfile just COPYs dist/..._linux_${arch} into the
+        # image -- it does not rebuild. So the pushed image's binary
+        # should be byte-identical to what's in dist/checksums.txt. This
+        # is the check that would have caught the v0.1.0 problem in CI:
+        # that release's image and its checksums.txt came from two
+        # different runs and silently diverged. Pull the just-pushed
+        # linux/amd64 image, extract the binary, and compare its hash
+        # against the checksums.txt about to be uploaded.
+        env:
+          IMAGE: ghcr.io/rknightion/openbao-plugin-secrets-github:${{ steps.tag.outputs.tag }}
+        run: |
+          docker pull --platform linux/amd64 "$IMAGE"
+          cid=$(docker create --platform linux/amd64 "$IMAGE")
+          docker cp "$cid:/openbao-plugin-secrets-github" ./image-binary-amd64
+          docker rm "$cid" >/dev/null
+          actual=$(sha256sum ./image-binary-amd64 | awk '{print $1}')
+          expected=$(grep 'linux_amd64' dist/checksums.txt | awk '{print $1}')
+          if [ -z "$expected" ]; then
+            echo "::error::no linux_amd64 line found in dist/checksums.txt"
+            exit 1
+          fi
+          if [ "$actual" != "$expected" ]; then
+            echo "::error::pushed image amd64 binary sha256 ($actual) does not match checksums.txt ($expected)"
+            exit 1
+          fi
+          echo "verified: image amd64 binary matches checksums.txt ($actual)"
 
       - name: Attach binaries and checksums to the release
         # softprops/action-gh-release re-PATCHes the whole release object
