@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/hashicorp/vault/sdk/framework"
+	"github.com/openbao/openbao/sdk/v2/framework"
 )
 
 const githubPublicAPI = "https://api.github.com"

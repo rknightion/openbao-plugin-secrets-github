@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/vault/sdk/framework"
+	"github.com/openbao/openbao/sdk/v2/framework"
 
 	"gotest.tools/assert"
 )

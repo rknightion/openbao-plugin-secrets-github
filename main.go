@@ -5,10 +5,10 @@ import (
 	"os"
 
 	"github.com/hashicorp/go-hclog"
-	"github.com/hashicorp/vault/api"
-	"github.com/hashicorp/vault/sdk/plugin"
+	"github.com/openbao/openbao/api/v2"
+	"github.com/openbao/openbao/sdk/v2/plugin"
 
-	"github.com/martinbaillie/vault-plugin-secrets-github/v2/github"
+	"github.com/rknightion/openbao-plugin-secrets-github/v2/github"
 )
 
 func main() {
