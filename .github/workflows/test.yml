@@ -8,7 +8,7 @@ jobs:
     - uses: DeterminateSystems/nix-installer-action@21a544727d0c62386e78b4befe52d19ad12692e3 # v17
     - uses: DeterminateSystems/flakehub-cache-action@134cf641155463d87d343c6cb2b7970089967b99 # v2
     - run: nix develop --command bash -c "lint && integration"
-    - uses: codecov/codecov-action@1e68e06f1dbfde0e4cefc87efeba9e4643565303 # v5.1.2
+    - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
       with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: test/coverage.out
