@@ -97,28 +97,34 @@ jobs:
           echo "api.github.com still reachable"
 
       - name: The minted token works, and only where it should
-        # Positive: authenticates to GitHub as the App installation.
-        # Negative: cannot reach a repo outside its permission set. That second
-        # assertion is the property that makes this safe to hand to 18 repos --
-        # without it, a scoping bug would look exactly like success.
+        # Asks GitHub directly which repositories the token can act on, and
+        # asserts the set is exactly one.
+        #
+        # A previous version of this step instead GET'd an out-of-scope repo
+        # and expected a non-200. That proved NOTHING: every repo here is
+        # public, so a plain GET returns 200 for any token, or none at all. It
+        # is a scope test that passes regardless of scope. /installation/
+        # repositories is the real answer -- it enumerates the installation
+        # token's actual grant rather than inferring it from a request that
+        # public visibility would have allowed anyway.
         env:
           GH_TOKEN: ${{ steps.tok.outputs.token }}
         run: |
           set -euo pipefail
-          code=$(curl -s -o /dev/null -w '%{http_code}' \
-            -H "Authorization: Bearer $GH_TOKEN" \
-            https://api.github.com/repos/rknightion/openbao-plugin-secrets-github)
-          [ "$code" = "200" ] || { echo "::error::own repo returned $code, expected 200"; exit 1; }
-          echo "own repo: 200"
-
-          other=$(curl -s -o /dev/null -w '%{http_code}' \
-            -H "Authorization: Bearer $GH_TOKEN" \
-            https://api.github.com/repos/rknightion/meraki-dashboard-exporter)
-          if [ "$other" = "200" ]; then
-            echo "::error::token reached a repo outside its permission set -- scoping is broken"
-            exit 1
-          fi
-          echo "out-of-scope repo correctly refused (HTTP $other)"
+          curl -sS -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/installation/repositories > /tmp/inst.json
+          python3 - <<'PY'
+          import json, sys
+          d = json.load(open('/tmp/inst.json'))
+          names = sorted(r['full_name'] for r in d['repositories'])
+          print("token grants access to:", names)
+          expected = ['rknightion/openbao-plugin-secrets-github']
+          if names != expected:
+              print(f"::error::token scope is {names}, expected {expected}")
+              sys.exit(1)
+          print("scope is exactly the permission set's repo")
+          PY
 
       - name: The ACL grant really is OpenBao-only
         # camden itself (10.0.0.5) is the meaningful negative: OpenBao runs on
