@@ -1,23 +1,22 @@
 name: Broker connectivity probe
 
-# Proves the plumbing that issue #23 depends on, WITHOUT involving OpenBao auth:
+# End-to-end proof of the path issue #23 depends on:
 #
-#   1. GitHub OIDC token -> Tailscale workload identity federation -> tailnet
-#      join as an ephemeral tag:gha node. No Tailscale secret is stored here:
-#      TS_WIF_CLIENT_ID and TS_WIF_AUDIENCE are identifiers, not credentials.
-#      Possession of either grants nothing without a GitHub-signed OIDC token
-#      whose `sub` matches the federated identity's subject.
-#   2. tag:gha -> tag:openbao tcp:443, and NOTHING else on the tailnet.
+#   GitHub OIDC -> Tailscale workload identity federation -> ephemeral tag:gha
+#   node -> OpenBao auth/gha JWT role -> permission set -> scoped ghs_ token.
 #
-# The specific thing this de-risks is the federated identity's subject, which
-# is the wildcard `repo:rknightion/*:ref:refs/heads/main` so that one identity
-# covers every rknightion repo rather than needing 18 of them. The Tailscale
-# API accepts that string at creation time regardless of whether it matches
-# anything, so acceptance is not evidence -- only a real exchange is.
+# No durable secret lives in this repo. TS_WIF_CLIENT_ID and TS_WIF_AUDIENCE
+# are identifiers, not credentials: possession of either grants nothing without
+# a GitHub-signed OIDC token whose claims match the federated identity
+# (repository_owner_id 12484127, ref refs/heads/main).
 #
-# Manual-dispatch only, and kept after the rollout as the thing to run first
-# when a broker workflow starts failing: it separates "tailnet/ACL broke" from
-# "OpenBao auth broke", which otherwise look identical from a failed job.
+# Manual-dispatch only, and worth keeping after the rollout: when a broker
+# workflow starts failing, this separates "tailnet/ACL broke" from "OpenBao
+# auth broke" from "the token is scoped wrong", which are indistinguishable
+# from a failed release job.
+#
+# Every assertion here is paired with its negative. A tailnet join that
+# silently does nothing would still let a naive positive-only check pass.
 
 on:
   workflow_dispatch:
@@ -42,6 +41,11 @@ jobs:
         # and deliberately does not say WHICH claim failed, so without this the
         # only way to debug a refused exchange is to guess and re-run. Prints
         # iss/sub/aud only -- never the token, and never the signature.
+        #
+        # Worth knowing: GitHub now emits IMMUTABLE subject claims
+        # (repo:owner@<id>/repo@<id>:...) on repos created after 2026-07-15,
+        # while workflow_ref and repository stay plain names. A trust policy
+        # written against the classic sub format fails on a new repo.
         env:
           TS_WIF_AUDIENCE: ${{ secrets.TS_WIF_AUDIENCE }}
         run: |
@@ -56,16 +60,19 @@ jobs:
               print(f"{k} = {c[k]!r}")
           PY
 
-      - name: Join the tailnet via workload identity federation
-        uses: tailscale/github-action@780049a30b6ff5c378a9e7b389d15ece7a204888 # v4.1.3
+      # This joins the tailnet as well as minting, so everything below it
+      # depends on this step having succeeded.
+      - name: Mint a scoped installation token through the broker
+        id: tok
+        uses: rknightion/.github/.github/actions/broker-token@b9ab5f80961f2c29c47a8d7d5dff112b6551169c
         with:
-          oauth-client-id: ${{ secrets.TS_WIF_CLIENT_ID }}
-          audience: ${{ secrets.TS_WIF_AUDIENCE }}
-          tags: tag:gha
+          permission-set: release-please-openbao-plugin-secrets-github
+          tailscale-client-id: ${{ secrets.TS_WIF_CLIENT_ID }}
+          tailscale-audience: ${{ secrets.TS_WIF_AUDIENCE }}
 
-      - name: OpenBao is reachable and is actually OpenBao
-        # sys/health is unauthenticated, so this asserts network reach and TLS
-        # without needing any OpenBao credential. `sealed: false` is included
+      - name: OpenBao is reachable, and is unsealed
+        # sys/health is unauthenticated, so this isolates network reach and TLS
+        # from anything credential-related. `sealed: false` is checked
         # deliberately: a sealed OpenBao answers this endpoint perfectly well
         # but cannot mint anything, and that is the failure mode most likely to
         # be misread as a broker bug.
@@ -77,18 +84,23 @@ jobs:
           echo "$body" | grep -q '"sealed":false'     || { echo "::error::OpenBao is SEALED -- no token can be minted until it unseals"; exit 1; }
           echo "reachable, initialized, unsealed"
 
-      - name: Mint a scoped installation token through the broker
-        id: tok
-        uses: rknightion/.github/.github/actions/broker-token@468cc0199b5e49cf854c719495f9e1828d9a7ff3
-        with:
-          permission-set: release-please-openbao-plugin-secrets-github
-          tailscale-client-id: ${{ secrets.TS_WIF_CLIENT_ID }}
-          tailscale-audience: ${{ secrets.TS_WIF_AUDIENCE }}
+      - name: Public DNS still resolves after joining the tailnet
+        # Regression guard for a real failure (run 31250275443). Accepting
+        # tailnet DNS points the runner at 10.0.0.254, which tag:gha may not
+        # reach, so every public name stops resolving the moment it joins --
+        # including api.github.com, which is what the token is FOR. The action
+        # passes --accept-dns=false to prevent that; this proves it held.
+        run: |
+          set -euo pipefail
+          curl -sS -o /dev/null --max-time 10 https://api.github.com/zen \
+            || { echo "::error::api.github.com unresolvable after tailnet join -- --accept-dns=false regressed"; exit 1; }
+          echo "api.github.com still reachable"
 
-      - name: The minted token actually works, and only where it should
-        # Positive: the token authenticates to GitHub as the App installation.
-        # Negative: it cannot reach a repo outside its permission set, which is
-        # the property that makes this safe to hand to eighteen repos.
+      - name: The minted token works, and only where it should
+        # Positive: authenticates to GitHub as the App installation.
+        # Negative: cannot reach a repo outside its permission set. That second
+        # assertion is the property that makes this safe to hand to 18 repos --
+        # without it, a scoping bug would look exactly like success.
         env:
           GH_TOKEN: ${{ steps.tok.outputs.token }}
         run: |
@@ -109,8 +121,6 @@ jobs:
           echo "out-of-scope repo correctly refused (HTTP $other)"
 
       - name: The ACL grant really is OpenBao-only
-        # Negative case, and it must come after the positive one so a totally
-        # broken tailnet join cannot masquerade as a passing deny check.
         # camden itself (10.0.0.5) is the meaningful negative: OpenBao runs on
         # that host, and the entire reason it has its own tailnet identity is
         # so CI is granted OpenBao alone rather than everything camden fronts.
