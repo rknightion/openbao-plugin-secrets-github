@@ -13,10 +13,32 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      id-token: write # exchanged for a tailnet identity and an OpenBao token
     steps:
+      # Replaces RELEASE_PLEASE_TOKEN, a fine-grained PAT scoped across EVERY
+      # rknightion repo, with a token scoped to this repo alone and valid for
+      # an hour. Nothing durable is stored here to leak.
+      #
+      # The release PR's author changes from `rknightion` to the App
+      # (`rknightion-token-broker[bot]`). That is safe for CI: the
+      # `action_required` gate that RELEASE_PLEASE_TOKEN exists to avoid
+      # applies to `github-actions[bot]`, not to bot identities generally --
+      # Renovate PRs (a GitHub App) already run CI unattended on this repo.
+      #
+      # AVAILABILITY: releases now depend on camden being up, unsealed and on
+      # the tailnet. A failure here is infrastructure, not the commit. Run
+      # broker-connectivity-probe.yml to tell those apart.
+      - name: Mint a scoped release token
+        id: tok
+        uses: rknightion/.github/.github/actions/broker-token@b9ab5f80961f2c29c47a8d7d5dff112b6551169c
+        with:
+          permission-set: release-please-openbao-plugin-secrets-github
+          tailscale-client-id: ${{ secrets.TS_WIF_CLIENT_ID }}
+          tailscale-audience: ${{ secrets.TS_WIF_AUDIENCE }}
+
       - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         id: release
         with:
-          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          token: ${{ steps.tok.outputs.token }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
