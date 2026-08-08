@@ -180,8 +180,19 @@ jobs:
         # this exact release, so it isn't a scope problem -- it's specific
         # to the full-release-update path). Use the asset-only upload
         # endpoint instead, which sidesteps that call entirely.
+        #
+        # This uses the ephemeral GITHUB_TOKEN, not RELEASE_PLEASE_TOKEN.
+        # The failure above was never evidence that GITHUB_TOKEN cannot do an
+        # asset-only upload -- it failed under both tokens, on a different
+        # endpoint. This job already grants `contents: write`, which is what
+        # the asset upload endpoint requires, while RELEASE_PLEASE_TOKEN is a
+        # PAT scoped across every rknightion repo and widens blast radius on a
+        # leak for no gain here. If this step ever does fail, it is cosmetic
+        # rather than release-breaking: the image is pushed and hash-verified
+        # by the step above, and camden pins the sha256 of the image layer,
+        # not of these release assets.
         env:
-          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ steps.tag.outputs.tag }}
         run: |
           gh release upload "$RELEASE_TAG" \

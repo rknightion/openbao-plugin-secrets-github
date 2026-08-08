@@ -55,9 +55,31 @@ jobs:
           platforms: linux/amd64
           push: false
 
+  vuln:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: true
+      # Deliberately NOT golang/govulncheck-action. That action always passes
+      # `go-version: stable` to setup-go alongside go-version-file, and setup-go
+      # ignores go-version-file whenever go-version is set — so it would scan
+      # with the newest Go rather than the toolchain this module actually pins.
+      # Most govulncheck findings here are stdlib, and every release ships
+      # whatever stdlib the `go` directive selects, so scanning with a different
+      # toolchain reports a clean bill of health for a binary that isn't clean.
+      # Running it in this job's setup-go environment guarantees the scanned
+      # toolchain is the shipped one.
+      - name: Install govulncheck
+        run: go install golang.org/x/vuln/cmd/govulncheck@latest
+      - name: Run govulncheck
+        run: govulncheck ./...
+
   ci-success:
     if: always()
-    needs: [test, image]
+    needs: [test, image, vuln]
     runs-on: ubuntu-latest
     steps:
       - name: Check results
