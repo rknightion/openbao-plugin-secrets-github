@@ -52,8 +52,8 @@ jobs:
           import base64, json, sys
           p = sys.argv[1].split('.')[1]
           c = json.loads(base64.urlsafe_b64decode(p + '=' * (-len(p) % 4)))
-          for k in ('iss', 'sub', 'aud', 'event_name', 'workflow_ref', 'repository', 'ref'):
-              print(f"{k} = {c.get(k)!r}")
+          for k in sorted(c):
+              print(f"{k} = {c[k]!r}")
           PY
 
       - name: Join the tailnet via workload identity federation
