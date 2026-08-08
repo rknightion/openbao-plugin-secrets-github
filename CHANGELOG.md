@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.1.2](https://github.com/rknightion/openbao-plugin-secrets-github/compare/v0.1.1...v0.1.2) (2026-08-08)
+
+
+### Features
+
+* mint release-please's token from the OpenBao broker ([f2c66f0](https://github.com/rknightion/openbao-plugin-secrets-github/commit/f2c66f0dcd0a7659d30c3703d0639e8b6b9223c4)), closes [#23](https://github.com/rknightion/openbao-plugin-secrets-github/issues/23)
+
+
+### Bug Fixes
+
+* bump Go to 1.26.5, gate CI on govulncheck, drop the PAT from publish ([8f3ab17](https://github.com/rknightion/openbao-plugin-secrets-github/commit/8f3ab17f72130eec6213be5205c4b4efc15162c6)), closes [#25](https://github.com/rknightion/openbao-plugin-secrets-github/issues/25)
+* **deps:** update module github.com/bradleyfalzon/ghinstallation/v2 to v2.19.0 ([#18](https://github.com/rknightion/openbao-plugin-secrets-github/issues/18)) ([20f0e40](https://github.com/rknightion/openbao-plugin-secrets-github/commit/20f0e40e5e2f31f1e303b790f357116e08b7e095))
+* **deps:** update module github.com/prometheus/client_golang to v1.24.1 ([#19](https://github.com/rknightion/openbao-plugin-secrets-github/issues/19)) ([4b46c0e](https://github.com/rknightion/openbao-plugin-secrets-github/commit/4b46c0e2702e25284b02cdbc038acc8a8ed9fe72))
+* harden publish.yml and correct the reproducibility claim ([77a2801](https://github.com/rknightion/openbao-plugin-secrets-github/commit/77a2801d3743c1e0af729800fdfb3acfc39442bc))
+
 ## [0.1.1](https://github.com/rknightion/openbao-plugin-secrets-github/compare/v0.1.0...v0.1.1) (2026-08-07)
 
 
