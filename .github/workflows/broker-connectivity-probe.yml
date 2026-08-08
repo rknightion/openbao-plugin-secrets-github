@@ -77,6 +77,37 @@ jobs:
           echo "$body" | grep -q '"sealed":false'     || { echo "::error::OpenBao is SEALED -- no token can be minted until it unseals"; exit 1; }
           echo "reachable, initialized, unsealed"
 
+      - name: Mint a scoped installation token through the broker
+        id: tok
+        uses: rknightion/.github/.github/actions/broker-token@468cc0199b5e49cf854c719495f9e1828d9a7ff3
+        with:
+          permission-set: release-please-openbao-plugin-secrets-github
+          tailscale-client-id: ${{ secrets.TS_WIF_CLIENT_ID }}
+          tailscale-audience: ${{ secrets.TS_WIF_AUDIENCE }}
+
+      - name: The minted token actually works, and only where it should
+        # Positive: the token authenticates to GitHub as the App installation.
+        # Negative: it cannot reach a repo outside its permission set, which is
+        # the property that makes this safe to hand to eighteen repos.
+        env:
+          GH_TOKEN: ${{ steps.tok.outputs.token }}
+        run: |
+          set -euo pipefail
+          code=$(curl -s -o /dev/null -w '%{http_code}' \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/rknightion/openbao-plugin-secrets-github)
+          [ "$code" = "200" ] || { echo "::error::own repo returned $code, expected 200"; exit 1; }
+          echo "own repo: 200"
+
+          other=$(curl -s -o /dev/null -w '%{http_code}' \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/rknightion/meraki-dashboard-exporter)
+          if [ "$other" = "200" ]; then
+            echo "::error::token reached a repo outside its permission set -- scoping is broken"
+            exit 1
+          fi
+          echo "out-of-scope repo correctly refused (HTTP $other)"
+
       - name: The ACL grant really is OpenBao-only
         # Negative case, and it must come after the positive one so a totally
         # broken tailnet join cannot masquerade as a passing deny check.
