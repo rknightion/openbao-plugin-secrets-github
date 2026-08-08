@@ -1,0 +1,74 @@
+name: Broker connectivity probe
+
+# Proves the plumbing that issue #23 depends on, WITHOUT involving OpenBao auth:
+#
+#   1. GitHub OIDC token -> Tailscale workload identity federation -> tailnet
+#      join as an ephemeral tag:gha node. No Tailscale secret is stored here:
+#      TS_WIF_CLIENT_ID and TS_WIF_AUDIENCE are identifiers, not credentials.
+#      Possession of either grants nothing without a GitHub-signed OIDC token
+#      whose `sub` matches the federated identity's subject.
+#   2. tag:gha -> tag:openbao tcp:443, and NOTHING else on the tailnet.
+#
+# The specific thing this de-risks is the federated identity's subject, which
+# is the wildcard `repo:rknightion/*:ref:refs/heads/main` so that one identity
+# covers every rknightion repo rather than needing 18 of them. The Tailscale
+# API accepts that string at creation time regardless of whether it matches
+# anything, so acceptance is not evidence -- only a real exchange is.
+#
+# Manual-dispatch only, and kept after the rollout as the thing to run first
+# when a broker workflow starts failing: it separates "tailnet/ACL broke" from
+# "OpenBao auth broke", which otherwise look identical from a failed job.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: broker-connectivity-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write # mint the GitHub OIDC token exchanged with Tailscale
+    steps:
+      - name: Join the tailnet via workload identity federation
+        uses: tailscale/github-action@780049a30b6ff5c378a9e7b389d15ece7a204888 # v4.1.3
+        with:
+          oauth-client-id: ${{ secrets.TS_WIF_CLIENT_ID }}
+          audience: ${{ secrets.TS_WIF_AUDIENCE }}
+          tags: tag:gha
+
+      - name: OpenBao is reachable and is actually OpenBao
+        # sys/health is unauthenticated, so this asserts network reach and TLS
+        # without needing any OpenBao credential. `sealed: false` is included
+        # deliberately: a sealed OpenBao answers this endpoint perfectly well
+        # but cannot mint anything, and that is the failure mode most likely to
+        # be misread as a broker bug.
+        run: |
+          set -euo pipefail
+          body=$(curl -sS --max-time 15 https://openbao.saga-turtle.ts.net/v1/sys/health)
+          echo "$body"
+          echo "$body" | grep -q '"initialized":true' || { echo "::error::not initialized"; exit 1; }
+          echo "$body" | grep -q '"sealed":false'     || { echo "::error::OpenBao is SEALED -- no token can be minted until it unseals"; exit 1; }
+          echo "reachable, initialized, unsealed"
+
+      - name: The ACL grant really is OpenBao-only
+        # Negative case, and it must come after the positive one so a totally
+        # broken tailnet join cannot masquerade as a passing deny check.
+        # camden itself (10.0.0.5) is the meaningful negative: OpenBao runs on
+        # that host, and the entire reason it has its own tailnet identity is
+        # so CI is granted OpenBao alone rather than everything camden fronts.
+        run: |
+          set -euo pipefail
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 8 https://10.0.0.5/ || true)
+          if [ "$code" != "000" ]; then
+            echo "::error::reached camden:443 (HTTP $code) -- tag:gha egress is wider than the ACL intends"
+            exit 1
+          fi
+          echo "camden:443 correctly unreachable from tag:gha"
