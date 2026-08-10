@@ -28,6 +28,24 @@ token issuance through OpenBao changes that shape:
   for and was allowed to ask for. [Permission sets](permission-sets.md) let an operator fix that
   scope server-side, so a caller can't request more than it was given.
 
+## Quickstart
+
+With the plugin already registered in OpenBao's catalog (see
+[Installation](installation.md)):
+
+```sh
+bao secrets enable -path=github -plugin-name=openbao-plugin-secrets-github plugin
+
+bao write github/config \
+    app_id=123456 \
+    prv_key=@path/to/app-private-key.pem
+
+bao read github/token installation_id=87654321
+```
+
+The last command mints a short-lived installation token. The App's private key
+stays inside OpenBao and is never handed to the client.
+
 ## When to use this over a PAT
 
 Reach for this engine when a workflow, service, or automation needs to act as a GitHub App
