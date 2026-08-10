@@ -10,3 +10,23 @@ todo.org
 *.pem
 /.direnv
 result
+
+# zensical local build output. The published site is built independently by the
+# rknightion/m7kni-net-site hub from docs/ + docs.toml.
+/site/
+
+# Injected by the m7kni.io hub at build time — never commit these.
+# The hub copies its own SEO template, brand stylesheet and fonts into a clone
+# and generates zensical.toml from docs.toml. A tracked copy here is drift, and
+# is exactly what the manifest model exists to prevent.
+/zensical.toml
+docs/overrides/
+docs/stylesheets/brand.css
+docs/assets/project-icon.svg
+docs/assets/project-icon-solid.svg
+docs/assets/social-card.png
+docs/assets/social-card.svg
+docs/fonts/
+
+# Superpowers scratch (specs/plans/audits) — never committed
+docs/superpowers/

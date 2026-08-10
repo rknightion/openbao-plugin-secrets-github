@@ -1,0 +1,54 @@
+name: Trigger Documentation Sync
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - 'docs.toml'
+  workflow_dispatch:
+
+permissions: {} # the dispatch credential is minted per run from OpenBao, not GITHUB_TOKEN
+
+concurrency:
+  group: docs-sync-${{ github.repository }}
+  cancel-in-progress: true
+
+jobs:
+  trigger-sync:
+    # id-token: write must be granted on the job that mints; the
+    # workflow-level block above does not cover it.
+    permissions:
+      contents: read
+      id-token: write # exchanged for a tailnet identity and an OpenBao token
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
+    steps:
+      # Mints a GitHub App installation token carrying contents:write on the docs
+      # hub ONLY. Nothing durable is stored in this repo.
+      # contents:write really is what the dispatch endpoint wants -- actions:write
+      # is the intuitive wrong answer.
+      #
+      # Docs sync depends on camden being up, unsealed and on the tailnet. The
+      # hub's daily 06:00 UTC cron rebuild remains the backstop if this fails.
+      - name: Mint a scoped docs-sync token
+        id: bao
+        uses: rknightion/.github/.github/actions/broker-token@1cd0af4cdb0f46266b34f3b981543e32e7c98b4a
+        with:
+          permission-set: docs-sync
+          # One shared permission set, but a role per repo to pin repository_id --
+          # so unlike the release-please lane these two names differ. Omitting
+          # role: makes the action default it to the permission-set name, which
+          # does not exist, and auth/gha/login answers 400.
+          role: docs-sync-openbao-plugin-secrets-github
+          tailscale-client-id: ${{ secrets.TS_WIF_CLIENT_ID }}
+          tailscale-audience: ${{ secrets.TS_WIF_AUDIENCE }}
+
+      - name: Trigger documentation sync in parent repo
+        uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697 # v4
+        with:
+          token: ${{ steps.bao.outputs.token }}
+          repository: rknightion/m7kni-net-site
+          event-type: docs-update
+          client-payload: '{"repository": "openbao-plugin-secrets-github"}'
