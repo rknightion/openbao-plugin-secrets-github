@@ -1,0 +1,14 @@
+name: zizmor
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: ['**']
+permissions: {}
+jobs:
+  zizmor:
+    permissions:
+      security-events: write
+      contents: read
+      actions: read
+    uses: rknightion/.github/.github/workflows/zizmor.yml@0228d8b9f1e36ff3a1d0906574d70fa174ddc7bf # v1.5.1
