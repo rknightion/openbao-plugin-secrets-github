@@ -5,7 +5,7 @@
 [site]
 name = "openbao-plugin-secrets-github"
 description = "OpenBao secrets engine that mints short-lived, permission-scoped GitHub App installation tokens without exposing the App's private key."
-author = "Rob Knighton"
+author = "Rob Knight"
 keywords = [
     "openbao",
     "openbao secrets engine",
