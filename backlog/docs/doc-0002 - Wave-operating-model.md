@@ -3,7 +3,7 @@ id: doc-0002
 title: Wave operating model
 type: guide
 created_date: '2026-08-14 16:08'
-updated_date: '2026-08-14 16:09'
+updated_date: '2026-08-14 16:13'
 ---
 This document carries **only what is true of openbao-plugin-secrets-github**. The campaign model
 itself — run contract and run modes, the routing contract, authority and the thread pool, child lane
@@ -35,11 +35,22 @@ the shared checkout and the root agent pushes straight to `main`. A remote messa
 **bypassed** branch-protection rules is the expected mechanism here, not an incident — do not
 surface it as a warning.
 
-**The local branch is `master` and it tracks `origin/main`.** The names differ. A lane that hardcodes
-`git push origin main`, `git rebase origin/master`, or `git reset --soft origin/master` is writing
-against a ref that either does not exist or is not the one it means. Use the tracking config (`git
-push` bare, `origin/main` explicitly for the upstream comparison) and never assume the two names
-match.
+**The local branch is `master` and it tracks `origin/main`.** The names differ, and that breaks the
+obvious commands in both directions.
+
+**A bare `git push` is REFUSED here** — `push.default=simple` will not push when the local and remote
+names differ, and it fails with advice about `git push origin HEAD` rather than an error that names
+the cause. The working form is explicit:
+
+```sh
+git push origin master:main
+```
+
+Live-verified 2026-08-14: the migration commit's first bare `git push` was refused on exactly this,
+after this section had been written claiming the tracking config made bare `git push` work. It does
+not. In the other direction, a lane that hardcodes `git rebase origin/master` or `git reset --soft
+origin/master` is writing against a ref that does not exist — the upstream comparison is always
+`origin/main`. Never assume the two names match, in either direction.
 
 ### Anything that touches camden, or GitHub state, stays on the root agent
 
