@@ -113,11 +113,16 @@ Open work lives in `backlog/`, driven **only** through the `backlog` CLI. `backl
 is the queue; `backlog doc list --plain` lists the durable docs. Backlog.md was adopted on
 **2026-08-14**. New work is `obg-NNNN`.
 
-**GitHub Issues was not deleted and the tracker stays open** — external contributors can file there,
-and Renovate's dependency dashboard (`#21`) lives there and is recreated on every run, so it is
-deliberately not a task. Historical work is still cited as `#NNN` and those issues still resolve:
-the *Closed GitHub issues* doc is the index into them. Two ID spaces, no overlap. Anything arriving
-as a new GitHub issue becomes an `obg-NNNN` task; the board, not the issue, is where it is worked.
+**The GitHub tracker stays open, but every issue this project filed has been deleted.** `#1` and
+`#25` went on **2026-08-14** (no dump file — deliberate), `#22`/`#23`/`#26` on 2026-08-11. So every
+`#NNN` in a commit message or in `CHANGELOG.md` now **404s, by design** — do not "repair" those
+references. The *Closed GitHub issues* doc is the record for the first two; the camden archive at
+`chat-personal/camden/openbao/archive/github-issues/` is the record for the other three.
+
+`#21` is all that is left: Renovate's dependency dashboard, recreated on every run, a bot artefact
+and deliberately not a task. The tracker stays enabled so external contributors can file — this is a
+public repo and a fork of a project with its own users. Anything arriving that way becomes an
+`obg-NNNN` task; the board, not the issue, is where it is worked.
 
 Read the **Agent fan-out protocol (canonical)** doc before designing a wave, and the **Wave operating
 model** doc for this project's own rules. Docs load on demand via `backlog doc view <id> --plain`, so
