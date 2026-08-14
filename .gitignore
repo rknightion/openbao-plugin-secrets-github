@@ -30,3 +30,12 @@ docs/fonts/
 
 # Superpowers scratch (specs/plans/audits) — never committed
 docs/superpowers/
+
+# Track only the Backlog.md guard hook and the settings that wire it, so the
+# tracker rules (bare --notes/--plan replaces a section silently; hand-edited
+# task markdown loses one at exit 0) are enforced for anyone working in this
+# repo. Everything else under .claude/ is per-machine state: worktrees,
+# scheduler locks, and settings.local.json.
+.claude/*
+!.claude/settings.json
+!.claude/hooks/

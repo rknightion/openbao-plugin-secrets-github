@@ -1,0 +1,21 @@
+project_name: "openbao-plugin-secrets-github"
+default_status: "To Do"
+statuses: ["To Do", "In Progress", "Parked", "Done"]
+definition_of_done:
+  - "go build ./... && go test -race ./... && go vet ./..."
+  - "grep -rn 'hashicorp/vault' --include='*.go' . returns nothing (CI-only gate)"
+  - "govulncheck ./... (CI-only gate; a red vuln job may be a new stdlib CVE, not this change)"
+  - "go vet -tags integration ./... (only if the change touches anything integration_test.go references)"
+labels: []
+date_format: yyyy-mm-dd
+max_column_width: 20
+auto_open_browser: true
+default_port: 6420
+remote_operations: false
+auto_commit: false
+filesystem_only: false
+zero_padded_ids: 4
+bypass_git_hooks: false
+check_active_branches: false
+active_branch_days: 30
+task_prefix: "obg"
