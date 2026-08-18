@@ -2,7 +2,7 @@
 # vX.Y.Z-rc.N against the version release-please is already staging in its open
 # release PR, then publish the image for it.
 #
-# The stable release path (release.yml) is untouched: it still opens and
+# The stable release path (release-please.yml) is untouched: it still opens and
 # maintains the release PR, and a stable release still requires an explicit
 # merge. The RC path never writes to the changelog or the release PR.
 name: auto-rc
@@ -41,5 +41,4 @@ jobs:
       packages: write # push the image to GHCR
     uses: ./.github/workflows/publish.yml
     with:
-      # This repo's publish.yml names the input `tag`, not `release_tag`.
-      tag: ${{ needs.rc.outputs.tag }}
+      release_tag: ${{ needs.rc.outputs.tag }}
