@@ -3,6 +3,17 @@ name: Publish
 on:
   release:
     types: [published]
+  # Callable so auto-rc.yml can publish a release candidate in the same run that
+  # creates it. The `release: published` path above cannot serve that: auto-rc
+  # creates the prerelease with GITHUB_TOKEN, and a GITHUB_TOKEN-created release
+  # deliberately does not trigger other workflows. Same `tag` input name as the
+  # dispatch path, so `inputs.tag` below resolves for both.
+  workflow_call:
+    inputs:
+      tag:
+        description: "Existing tag to build and publish (e.g. v0.1.0)"
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       tag:
