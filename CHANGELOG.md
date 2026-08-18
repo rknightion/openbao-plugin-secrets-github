@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/rknightion/openbao-plugin-secrets-github/compare/v0.1.2...v0.1.3) (2026-08-18)
+
+
+### Bug Fixes
+
+* author is Rob Knight, not Rob Knighton ([fc667a4](https://github.com/rknightion/openbao-plugin-secrets-github/commit/fc667a42a899cf837a4173c706154f3dfa5e830a))
+
 ## [0.1.2](https://github.com/rknightion/openbao-plugin-secrets-github/compare/v0.1.1...v0.1.2) (2026-08-08)
 
 
