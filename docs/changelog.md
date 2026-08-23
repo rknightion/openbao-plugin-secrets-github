@@ -1,6 +1,6 @@
 ---
 title: Changelog
-description: Release history for openbao-plugin-secrets-github
+description: Review OpenBao GitHub secrets plugin releases, token-minting behavior, policy changes, fixes, and dependency updates.
 ---
 
 # Changelog

@@ -1,6 +1,6 @@
 ---
 title: FAQ
-description: Frequently asked questions about openbao-plugin-secrets-github.
+description: Answers about OpenBao and Vault compatibility, GitHub App tokens, permissions, leases, revocation, and migration.
 ---
 
 # FAQ
