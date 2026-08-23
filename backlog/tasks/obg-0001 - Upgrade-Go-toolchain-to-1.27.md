@@ -1,10 +1,10 @@
 ---
 id: OBG-0001
 title: Upgrade Go toolchain to 1.27
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-08-23 19:06'
-updated_date: '2026-08-23 19:49'
+updated_date: '2026-08-23 20:37'
 labels: []
 dependencies: []
 ordinal: 1000
@@ -41,4 +41,12 @@ Adopt Go 1.27 consistently across the application, nested modules, build images,
 
 <!-- SECTION:NOTES:BEGIN -->
 Local Go 1.27.0 evidence: build, race tests, vet, integration-tag vet, the hashicorp/vault exclusion check, and govulncheck all passed; govulncheck reported no reachable vulnerabilities. Final diff check passed. CodeRabbit was skipped because only the module/toolchain declaration and tracker changed.
+
+Exact-head hosted evidence: GitHub Actions run 32662553933 passed at 1ab6e228c1428391f7cd2d8b24481356e1751f97. Required ci-success passed; the unrelated auto-rc workflow remained outside this task.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Upgraded the active Go application surfaces to Go 1.27 and validated the change locally and in exact-head hosted CI run 32662553933 at 1ab6e228c1428391f7cd2d8b24481356e1751f97. Required ci-success passed; the unrelated auto-rc workflow remained outside this task.
+<!-- SECTION:FINAL_SUMMARY:END -->
