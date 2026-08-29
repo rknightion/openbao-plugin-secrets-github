@@ -1,10 +1,10 @@
 ---
 id: OBG-0002
 title: Migrate the repo task surface to just and retire Makefiles and ad-hoc scripts
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-08-28 19:25'
-updated_date: '2026-08-29 14:15'
+updated_date: '2026-08-29 14:33'
 labels:
   - 'wave:2-fleet'
 dependencies: []
@@ -479,24 +479,24 @@ as part of this task; it is documented here for whoever executes the plan, and i
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Top-level justfile exists with all seven mandatory recipes (default, setup, fmt, fmt-check, lint, test, check) plus audit, image and ci, each carrying a # doc comment and a [group(...)]
-- [ ] #2 just check runs fmt-check, lint (golangci-lint run + go vet + go vet -tags integration), verify-no-vault-sdk, audit (govulncheck), and test, and passes locally
-- [ ] #3 just --fmt --check passes and is invoked from inside fmt-check
-- [ ] #4 just --list shows a doc comment and a group for every public recipe
-- [ ] #5 confirmed no Makefile or GNUmakefile exists anywhere in the repo (there was none to delete)
-- [ ] #6 confirmed no tracked shell script exists in the repo (there was none to absorb or keep)
-- [ ] #7 .github/workflows/ci.yml's test job runs just check (folding in the former vuln job's govulncheck), the image job runs just image, and ci-success's needs: list is updated to [test, image] with all other structural blocks (permissions, concurrency, SHA pins) unchanged
-- [ ] #8 AGENTS.md's Gate section and README.md's Build section reference just instead of raw go build/go test invocations, using the Task interface wording from JUST-FLEET-STANDARD.md section 9
-- [ ] #9 backlog/config.yml's definition_of_done references just check and just fmt-check instead of raw go commands
-- [ ] #10 publish.yml's release binary build step and flake.nix/.envrc are explicitly left unmigrated per the task's Traps and Out of scope sections
+- [x] #1 Top-level justfile exists with all seven mandatory recipes (default, setup, fmt, fmt-check, lint, test, check) plus audit, image and ci, each carrying a # doc comment and a [group(...)]
+- [x] #2 just check runs fmt-check, lint (golangci-lint run + go vet + go vet -tags integration), verify-no-vault-sdk, audit (govulncheck), and test, and passes locally
+- [x] #3 just --fmt --check passes and is invoked from inside fmt-check
+- [x] #4 just --list shows a doc comment and a group for every public recipe
+- [x] #5 confirmed no Makefile or GNUmakefile exists anywhere in the repo (there was none to delete)
+- [x] #6 confirmed no tracked shell script exists in the repo (there was none to absorb or keep)
+- [x] #7 .github/workflows/ci.yml's test job runs just check (folding in the former vuln job's govulncheck), the image job runs just image, and ci-success's needs: list is updated to [test, image] with all other structural blocks (permissions, concurrency, SHA pins) unchanged
+- [x] #8 AGENTS.md's Gate section and README.md's Build section reference just instead of raw go build/go test invocations, using the Task interface wording from JUST-FLEET-STANDARD.md section 9
+- [x] #9 backlog/config.yml's definition_of_done references just check and just fmt-check instead of raw go commands
+- [x] #10 publish.yml's release binary build step and flake.nix/.envrc are explicitly left unmigrated per the task's Traps and Out of scope sections
 <!-- AC:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 go build ./... && go test -race ./... && go vet ./...
-- [ ] #2 grep -rn 'hashicorp/vault' --include='*.go' . returns nothing (CI-only gate)
-- [ ] #3 govulncheck ./... (CI-only gate; a red vuln job may be a new stdlib CVE, not this change)
-- [ ] #4 go vet -tags integration ./... (only if the change touches anything integration_test.go references)
+- [x] #1 go build ./... && go test -race ./... && go vet ./...
+- [x] #2 grep -rn 'hashicorp/vault' --include='*.go' . returns nothing (CI-only gate)
+- [x] #3 govulncheck ./... (CI-only gate; a red vuln job may be a new stdlib CVE, not this change)
+- [x] #4 go vet -tags integration ./... (only if the change touches anything integration_test.go references)
 <!-- DOD:END -->
 
 ## Implementation Plan
@@ -507,6 +507,12 @@ as part of this task; it is documented here for whoever executes the plan, and i
 3. Update the task-interface documentation, source-build documentation, and Backlog definition of done; include the newly found installation guide command reference.
 4. Run local formatting, check, image, workflow validation, review, exact-head CI, then finalize the task with evidence.
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Implemented the Just task surface and CI wiring. Local isolated validation passed `just --fmt --check`, `just --dump --dump-format json`, a shell-metacharacter filter test, `just check`, and `just image`; actionlint passed. The local zizmor run reported existing findings in unchanged workflows. CI run 33257817328 passed at aa4963679962d818d558ba5786621d104878d611. CodeRabbit completed one review, whose sole minor quoting finding was fixed; a final re-review was unavailable because the service rate-limited after a connection interruption.
+<!-- SECTION:NOTES:END -->
 
 ## Comments
 
@@ -551,3 +557,9 @@ Eleven of the 42 lanes arrived at this shape independently before it was ratifie
 **If this repo has no such legs, it has no `ci` recipe at all** and `check` is the whole gate. Do not add an empty one.
 ---
 <!-- COMMENTS:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Added the top-level justfile, routed CI test/image work through it, and updated the task interface, source-build docs, and definition of done. A small shared metric-label constant resolves pre-existing golangci-lint findings required for `just check` to pass. The release build and Nix surfaces remain intentionally unmigrated. Verified locally and by green CI run 33257817328 at aa4963679962d818d558ba5786621d104878d611.
+<!-- SECTION:FINAL_SUMMARY:END -->
