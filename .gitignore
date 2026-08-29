@@ -5,7 +5,9 @@ test/
 dist/
 vault-plugin-secrets-github
 vault-plugin-secrets-github-*
+openbao-plugin-secrets-github
 SHA256SUM*
+coverage.out
 todo.org
 *.pem
 /.direnv

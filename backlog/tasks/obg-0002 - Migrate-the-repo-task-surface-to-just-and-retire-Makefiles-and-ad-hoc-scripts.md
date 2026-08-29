@@ -1,10 +1,10 @@
 ---
 id: OBG-0002
 title: Migrate the repo task surface to just and retire Makefiles and ad-hoc scripts
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-08-28 19:25'
-updated_date: '2026-08-29 10:43'
+updated_date: '2026-08-29 14:15'
 labels:
   - 'wave:2-fleet'
 dependencies: []
@@ -498,6 +498,15 @@ as part of this task; it is documented here for whoever executes the plan, and i
 - [ ] #3 govulncheck ./... (CI-only gate; a red vuln job may be a new stdlib CVE, not this change)
 - [ ] #4 go vet -tags integration ./... (only if the change touches anything integration_test.go references)
 <!-- DOD:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Add the top-level justfile using the fleet’s mandatory recipes and the repo-specific audit, image, and Docker-gated ci surface.
+2. Replace CI task logic with one-line just recipes while retaining the release workflow and reusable workflow calls.
+3. Update the task-interface documentation, source-build documentation, and Backlog definition of done; include the newly found installation guide command reference.
+4. Run local formatting, check, image, workflow validation, review, exact-head CI, then finalize the task with evidence.
+<!-- SECTION:PLAN:END -->
 
 ## Comments
 

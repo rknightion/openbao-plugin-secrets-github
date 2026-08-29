@@ -21,18 +21,19 @@ jobs:
         with:
           go-version-file: go.mod
           cache: true
-      - name: Build
-        run: go build ./...
-      - name: Test
-        run: go test -race -coverprofile=coverage.out ./...
-      - name: Vet
-        run: go vet ./...
-      - name: Verify no Vault SDK imports remain
-        run: |
-          if grep -rn "hashicorp/vault" --include='*.go' .; then
-            echo "::error::HashiCorp Vault SDK import found; this plugin must use the OpenBao SDK"
-            exit 1
-          fi
+      - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
+        with:
+          just-version: '1.58.0'
+      # govulncheck must run inside THIS job's setup-go environment, not
+      # golang/govulncheck-action -- that action always passes go-version:
+      # stable alongside go-version-file, and setup-go ignores go-version-file
+      # whenever go-version is set, so it would scan with the newest Go rather
+      # than the toolchain this module actually pins. Every release ships
+      # whatever stdlib the `go` directive selects, so scanning with a
+      # different toolchain would report a clean bill of health for a binary
+      # that isn't clean.
+      - run: just setup
+      - run: just check
 
   image:
     runs-on: ubuntu-latest
@@ -41,45 +42,15 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: go.mod
-      - name: Build binary
-        run: |
-          mkdir -p dist
-          GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build \
-            -o dist/openbao-plugin-secrets-github_linux_amd64 .
+      - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
+        with:
+          just-version: '1.58.0'
       - uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
-      - name: Build image (no push)
-        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
-        with:
-          context: .
-          file: Containerfile
-          platforms: linux/amd64
-          push: false
-
-  vuln:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with:
-          go-version-file: go.mod
-          cache: true
-      # Deliberately NOT golang/govulncheck-action. That action always passes
-      # `go-version: stable` to setup-go alongside go-version-file, and setup-go
-      # ignores go-version-file whenever go-version is set — so it would scan
-      # with the newest Go rather than the toolchain this module actually pins.
-      # Most govulncheck findings here are stdlib, and every release ships
-      # whatever stdlib the `go` directive selects, so scanning with a different
-      # toolchain reports a clean bill of health for a binary that isn't clean.
-      # Running it in this job's setup-go environment guarantees the scanned
-      # toolchain is the shipped one.
-      - name: Install govulncheck
-        run: go install golang.org/x/vuln/cmd/govulncheck@latest
-      - name: Run govulncheck
-        run: govulncheck ./...
+      - run: just image
 
   ci-success:
     if: always()
-    needs: [test, image, vuln]
+    needs: [test, image]
     runs-on: ubuntu-latest
     steps:
       - name: Check results

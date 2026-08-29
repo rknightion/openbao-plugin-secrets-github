@@ -11,12 +11,13 @@ registering it with OpenBao — that every route ends with.
 ## Option A: build from source
 
 ```sh
-go build -o openbao-plugin-secrets-github .
-go test ./...
+just setup
+just check
+just build
 ```
 
-Requires the Go version pinned in `go.mod`. This produces an unstripped binary with no build
-metadata baked in; the `/github/info` path (see [Reference: API](reference/api.md#get-githubinfo))
+Requires the Go version pinned in `go.mod`; `just build` produces an unstripped binary with no build
+metadata baked in. The `/github/info` path (see [Reference: API](reference/api.md#get-githubinfo))
 will report empty version fields unless you inject them yourself with `-ldflags`, matching what the
 release build does (see `.github/workflows/publish.yml` in the repository for the exact `-X`
 injections against `github.projectName`, `github.projectVersion`, `github.projectDocs`, and the

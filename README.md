@@ -41,9 +41,12 @@ with a read-only root filesystem, mount a writable volume there.
 ## Build
 
 ```bash
-go build -o openbao-plugin-secrets-github .
-go test ./...
+just setup
+just check
 ```
+
+See `just --list` for the full task surface, including formatting, linting, the vulnerability scan,
+and the Containerfile image build.
 
 ## Licence
 

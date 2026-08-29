@@ -33,25 +33,28 @@ path with a sibling `_test.go` — `config`, `token`, `token_permission_set`, `p
 is the registry. `PathsSpecial.Unauthenticated` is `info` + `metrics` only — think before adding to
 it. Every path's literal is a `pathPattern*` const in its own file, never an inline string.
 
-## Gate
+## Task interface
 
-```bash
-go build ./... && go test -race ./... && go vet ./...
-```
+This repo's task surface is a `justfile`. Discover it, don't guess it:
 
-Two more checks exist only in `ci.yml` and will fail a PR that passes locally:
+    just --list                        # human-readable
+    just --dump --dump-format json     # machine-readable
+    just --show <recipe>               # what a recipe actually runs
 
-- **no `hashicorp/vault` imports** — `grep -rn "hashicorp/vault" --include='*.go' .` must be empty.
-  The port to the OpenBao SDK is the point of the fork; a transitive re-introduction is a regression.
-- **`govulncheck ./...`**, run inside the job's own `setup-go` environment. Deliberately *not*
-  `golang/govulncheck-action`: that action passes `go-version: stable` alongside `go-version-file`,
-  and setup-go ignores the file whenever `go-version` is set, so it would scan a toolchain the module
-  does not ship. `ci-success` depends on it, which means **a newly published stdlib CVE can turn PRs
-  red with no code change** — a red `vuln` job is not necessarily anything the PR did.
-
-`integration_test.go` is behind `//go:build integration` and needs a live OpenBao plus real GitHub App
-credentials, so it does not run in CI. `go vet -tags integration ./...` compiles it without running it
-— do that after touching anything it references, or it rots unnoticed.
+- `just check` is the full gate and exactly what CI's `test` job enforces. It includes the
+  `hashicorp/vault` import check (`verify-no-vault-sdk`) and `govulncheck` (`audit`), so no check now
+  passes locally only to fail in CI.
+- Prefer `just <recipe>` over the underlying tool. If you are typing `go test`, you want `just test`.
+- `just audit` runs in the module's own Go toolchain. Do not substitute `golang/govulncheck-action`:
+  it uses `go-version: stable` alongside `go-version-file`, causing it to scan a different stdlib than
+  releases ship. A newly published stdlib CVE can therefore make `just audit` fail without a source
+  change.
+- `integration_test.go` is behind `//go:build integration` and needs a live OpenBao plus real GitHub
+  App credentials, so it does not run in CI. `just lint` automatically compiles it with
+  `go vet -tags integration ./...` without executing it.
+- Run `just` with stdin from `/dev/null`. No recipe in this repo is `[confirm]`-marked today.
+- If a task you need does not exist, add a recipe with a `#` doc comment and a `[group(...)]` rather
+  than running a bare command. `default` and `setup` remain ungrouped.
 
 ## Test idiom — match it
 

@@ -2,10 +2,9 @@ project_name: "openbao-plugin-secrets-github"
 default_status: "To Do"
 statuses: ["To Do", "In Progress", "Parked", "Done"]
 definition_of_done:
-  - "go build ./... && go test -race ./... && go vet ./..."
-  - "grep -rn 'hashicorp/vault' --include='*.go' . returns nothing (CI-only gate)"
-  - "govulncheck ./... (CI-only gate; a red vuln job may be a new stdlib CVE, not this change)"
-  - "go vet -tags integration ./... (only if the change touches anything integration_test.go references)"
+  - "just check passes (fmt-check, lint including go vet -tags integration, verify-no-vault-sdk, audit, test)"
+  - "a red `just audit` may be a newly published stdlib CVE, not this change -- check before assuming a regression"
+  - "just fmt-check passes, including just --fmt --check"
 labels: []
 date_format: yyyy-mm-dd
 max_column_width: 20
