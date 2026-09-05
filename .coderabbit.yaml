@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# Product-specific additions to the central CodeRabbit defaults.
+# Keep inheritance enabled; shared review policy lives in the owner/coderabbit repository.
+inheritance: true
+reviews:
+  path_instructions:
+  - path: github/**
+    instructions: >-
+      Review this as an OpenBao secrets engine that mints GitHub App installation tokens. Every API path
+      must be registered in Factory, use its pathPattern constant, validate unknown fields, and have a
+      sibling test covering storage failures where relevant. Only info and metrics may remain unauthenticated.
+      Trace requested repositories and permissions through stored permission sets, token minting, leases
+      and revocation; flag any path or prefix change that could make unrestricted token minting match
+      a restricted policy. Preserve client-lock and permission-set-lock safety during invalidation and
+      concurrent requests.
+  - path: .github/workflows/publish.yml
+    instructions: >-
+      Release identity and hashes are operational contracts. Verify linker -X symbols actually resolve,
+      project name/version/docs and User-Agent are populated, the Go patch version matches the shipped
+      toolchain, and a previously published version is never rebuilt with different inputs. A version
+      or toolchain change requires a new release and downstream hash repin rather than republishing the
+      old tag.
