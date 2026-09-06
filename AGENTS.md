@@ -50,6 +50,9 @@ without executing it.
 `just check` is the gate, and is exactly what CI's `test` job enforces - including the
 `hashicorp/vault` import check and `govulncheck`, so nothing passes locally and then fails in CI.
 
+Run `just` with stdin from `/dev/null`, so a `[confirm]` recipe fails fast instead of blocking a
+non-interactive session.
+
 `just audit` runs govulncheck in the module's own Go toolchain. Do not substitute
 `golang/govulncheck-action`: it sets `go-version: stable` alongside `go-version-file`, so it scans a
 different stdlib than releases ship. A newly published stdlib CVE can therefore fail `just audit`
