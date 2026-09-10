@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.3](https://github.com/rknightion/openbao-plugin-secrets-github/compare/v0.1.2...v0.1.3) (2026-09-10)
+
+
+### Bug Fixes
+
+* author is Rob Knight, not Rob Knighton ([fc667a4](https://github.com/rknightion/openbao-plugin-secrets-github/commit/fc667a42a899cf837a4173c706154f3dfa5e830a))
+* **deps:** update module github.com/openbao/openbao/api/v2 to v2.7.0 ([#44](https://github.com/rknightion/openbao-plugin-secrets-github/issues/44)) ([9ccb1e6](https://github.com/rknightion/openbao-plugin-secrets-github/commit/9ccb1e6b46723ee34b5059bde5a430144eef0d2c))
+* **deps:** update module github.com/openbao/openbao/sdk/v2 to v2.7.0 ([#46](https://github.com/rknightion/openbao-plugin-secrets-github/issues/46)) ([94e2c48](https://github.com/rknightion/openbao-plugin-secrets-github/commit/94e2c48eca27e333dd9e453185f0729cf21566e0))
+* **deps:** update module github.com/prometheus/common to v0.71.0 ([#39](https://github.com/rknightion/openbao-plugin-secrets-github/issues/39)) ([0588008](https://github.com/rknightion/openbao-plugin-secrets-github/commit/05880083dcf4703e9f6b07fba775e25371e0740a))
+
 ## [0.1.2](https://github.com/rknightion/openbao-plugin-secrets-github/compare/v0.1.1...v0.1.2) (2026-08-08)
 
 
