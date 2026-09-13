@@ -20,3 +20,15 @@ reviews:
       toolchain, and a previously published version is never rebuilt with different inputs. A version
       or toolchain change requires a new release and downstream hash repin rather than republishing the
       old tag.
+knowledge_base:
+  linked_repositories:
+  - repository: m7kni/m7kni-net-site
+    instructions: >-
+      Documentation hub. This repository dispatches documentation changes to the hub, which clones the
+      docs source and builds it. Check docs_path, config_file and the dispatch payload against this
+      repository's entry in the hub's docs-repos.json manifest.
+  - repository: rknightion/.github
+    instructions: >-
+      Live consumer. Its actions/broker-token composite action calls this plugin's token/<permission-
+      set> route and parses data.token, data.repositories, data.permissions and data.expires_at. A path,
+      field name or auth-flow change here breaks that action with no compile-time signal.
