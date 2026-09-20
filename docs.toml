@@ -75,9 +75,3 @@ OpenBao = "openbao"
 "Secrets Engine" = "secrets-engine"
 Configuration = "config"
 Security = "security"
-[backlog]
-enabled = true
-title = "Backlog"
-include_completed = true
-include_docs = true
-include_decisions = true
