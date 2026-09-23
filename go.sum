@@ -150,8 +150,8 @@ github.com/openbao/go-kms-wrapping/v2 v2.9.0 h1:LI7DwOi1v4zv7FqBTbiChUzGo5kav9ON
 github.com/openbao/go-kms-wrapping/v2 v2.9.0/go.mod h1:CcqEQD8O2fsOG40hlT/oR5RTkus0zvjfsnCrFkRNf48=
 github.com/openbao/openbao/api/v2 v2.7.0 h1:3CD1l3tr39nQraCgFGAWA5vYvPFzZoZrt3NL7DMQKAc=
 github.com/openbao/openbao/api/v2 v2.7.0/go.mod h1:uXbMoyH2pjSvNyTepinUvLde8pOJB82EuhUCfOKnKbo=
-github.com/openbao/openbao/sdk/v2 v2.7.0 h1:9zvC2uvf9e3R6P/+PqajJF1aYxtVRni2kE4vHZTiiD4=
-github.com/openbao/openbao/sdk/v2 v2.7.0/go.mod h1:5mnXQZTYX1D9QeuhLAIgOVVRpv5vo++p/fMCT8xq4a0=
+github.com/openbao/openbao/sdk/v2 v2.7.1 h1:QGXGbBq67lOU36IbXdDw3bEt7WyNmurwcH6YOjKKMRo=
+github.com/openbao/openbao/sdk/v2 v2.7.1/go.mod h1:6jM3ddCaJR8soKB2ilxuNbbzgYrX73+gxw2f3ZdBup0=
 github.com/pascaldekloe/goe v0.1.0 h1:cBOtyMzM9HTpWjXfbbunk26uA6nG3a8n06Wieeh0MwY=
 github.com/pascaldekloe/goe v0.1.0/go.mod h1:lzWF7FIEvWOWxwDKqyGYQf6ZUaNfKdP144TG7ZOy1lc=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
