@@ -5,7 +5,7 @@ go 1.27.0
 require (
 	github.com/bradleyfalzon/ghinstallation/v2 v2.19.0
 	github.com/hashicorp/go-hclog v1.6.3
-	github.com/openbao/openbao/api/v2 v2.7.0
+	github.com/openbao/openbao/api/v2 v2.7.1
 	github.com/openbao/openbao/sdk/v2 v2.7.1
 	github.com/prometheus/client_golang v1.24.1
 	github.com/prometheus/common v0.72.0
