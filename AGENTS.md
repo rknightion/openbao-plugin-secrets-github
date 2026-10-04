@@ -28,9 +28,7 @@ path with a sibling `_test.go`.
   fields instead of returning a 400.
 - `projectName`, `projectDocs` (`path_info.go`) and `projectVersion` (`backend.go`) are `-X`
   injections made only by `publish.yml`, so they are empty in `go build`, in tests and in any dev
-  binary: `/info` returning blanks locally is correct. v0.1.0 shipped without them, which meant an
-  empty `User-Agent` on every GitHub call and a WAF 403 on all of them while the mount, config and
-  mint plumbing worked. `go build -X` on a symbol path that does not resolve is silently ignored, so
+  binary: `/info` returning blanks locally is correct. `go build -X` on a symbol path that does not resolve is silently ignored, so
   verify `/info` on a real release.
 
 ## Test idiom - match it
@@ -102,18 +100,6 @@ project's own rules.
   One deliberate exception: `camden`, the deployment host, is named openly - it is a Tailscale
   hostname on a private tailnet, already throughout this repo's history, and pseudonymising it would
   make the camden seams unreadable. Not licence for other host names.
-- Never `--notes` or `--plan` bare. They silently replace the whole section, destroying another
-  session's writes, and exit 0. Use `--append-notes` and `--append-plan`; a global `PreToolUse` hook
-  denies the bare forms rather than trusting anyone to remember.
-- Finalize in one call, so an interrupted run cannot leave finished work looking unfinished:
-  `backlog task edit obg-0007 --check-ac 1 --check-ac 2 -s Done`.
-- Section boundaries in task, draft, doc, decision and milestone markdown are HTML-comment markers.
-  Break one by hand-editing and the section is silently dropped at exit 0 - still in the file,
-  invisible to the CLI, until the next write destroys it for real. `backlog doctor` only repairs
-  duplicate task IDs. `backlog/config.yml` is the one backlog file edited by hand, because
-  list-valued keys cannot be set through `backlog config set`.
-- Never let two sessions edit the same task. The concurrency fix covers the edit funnel but not
-  reorder, draft saves, the TUI edit path, `doc update` or decision updates.
 - `Parked` is a real status, not a synonym for To Do: attempted, blocked, and left with a concrete
   resume boundary. Flattening it loses the most valuable thing a long autonomous run produces.
 - Do not build on decisions, and do not use the MCP surface. Decisions are half-built upstream - no
