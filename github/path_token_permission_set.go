@@ -54,13 +54,16 @@ func (b *backend) pathTokenPermissionSet() *framework.Path {
 			// As per the issue request in https://git.io/JUhRk, allow Vault
 			// Reads (i.e. HTTP GET) to also write the GitHub tokens.
 			logical.ReadOperation: &framework.PathOperation{
-				Callback: withFieldValidator(b.pathTokenPermissionSetWrite),
+				Callback:                  withFieldValidator(b.pathTokenPermissionSetWrite),
+				ForwardPerformanceStandby: true,
 			},
 			logical.CreateOperation: &framework.PathOperation{
-				Callback: withFieldValidator(b.pathTokenPermissionSetWrite),
+				Callback:                  withFieldValidator(b.pathTokenPermissionSetWrite),
+				ForwardPerformanceStandby: true,
 			},
 			logical.UpdateOperation: &framework.PathOperation{
-				Callback: withFieldValidator(b.pathTokenPermissionSetWrite),
+				Callback:                  withFieldValidator(b.pathTokenPermissionSetWrite),
+				ForwardPerformanceStandby: true,
 			},
 		},
 		HelpSynopsis:    pathTokenPermissionSetHelpSyn,

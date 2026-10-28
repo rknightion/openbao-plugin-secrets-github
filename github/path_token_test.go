@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/openbao/openbao/sdk/v2/framework"
 	"github.com/openbao/openbao/sdk/v2/logical"
 	"gotest.tools/assert"
 
@@ -201,4 +202,32 @@ func TestBackend_PathTokenWriteCreate(t *testing.T) {
 func TestBackend_PathTokenWriteUpdate(t *testing.T) {
 	t.Parallel()
 	testBackendPathTokenWrite(t, logical.UpdateOperation)
+}
+
+// TestBackend_TokenPathsForwardToActive pins the forwarding of every minting
+// operation: a standby that handled one itself would mint a GitHub token and
+// then fail to register its lease in read-only storage.
+func TestBackend_TokenPathsForwardToActive(t *testing.T) {
+	t.Parallel()
+
+	b, _ := testBackend(t)
+
+	for name, path := range map[string]*framework.Path{
+		"token":                 b.pathToken(),
+		"token/<permissionset>": b.pathTokenPermissionSet(),
+	} {
+		for _, op := range []logical.Operation{
+			logical.ReadOperation,
+			logical.CreateOperation,
+			logical.UpdateOperation,
+		} {
+			t.Run(name+"/"+string(op), func(t *testing.T) {
+				t.Parallel()
+
+				handler, ok := path.Operations[op]
+				assert.Assert(t, ok)
+				assert.Assert(t, handler.Properties().ForwardPerformanceStandby)
+			})
+		}
+	}
 }
