@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.4](https://github.com/rknightion/openbao-plugin-secrets-github/compare/v0.1.3...v0.1.4) (2026-10-28)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/prometheus/common to v0.73.0 ([#87](https://github.com/rknightion/openbao-plugin-secrets-github/issues/87)) ([3b6721e](https://github.com/rknightion/openbao-plugin-secrets-github/commit/3b6721e76083c101cef9af00d3aaa425fb169e86))
+* **token:** forward token minting from standbys to the active node ([#84](https://github.com/rknightion/openbao-plugin-secrets-github/issues/84)) ([711c62f](https://github.com/rknightion/openbao-plugin-secrets-github/commit/711c62f59ebbdc57c06268a8533daf45b02fa6e1))
+
 ## [0.1.3](https://github.com/rknightion/openbao-plugin-secrets-github/compare/v0.1.2...v0.1.3) (2026-10-21)
 
 
