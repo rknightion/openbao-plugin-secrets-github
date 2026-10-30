@@ -152,8 +152,8 @@ github.com/openbao/openbao/api/v2 v2.7.1 h1:moqdSJdKr4Bpb5c/qsUY5ZuA/TIQChVigu0q
 github.com/openbao/openbao/api/v2 v2.7.1/go.mod h1:uXbMoyH2pjSvNyTepinUvLde8pOJB82EuhUCfOKnKbo=
 github.com/openbao/openbao/sdk/v2 v2.7.1 h1:QGXGbBq67lOU36IbXdDw3bEt7WyNmurwcH6YOjKKMRo=
 github.com/openbao/openbao/sdk/v2 v2.7.1/go.mod h1:6jM3ddCaJR8soKB2ilxuNbbzgYrX73+gxw2f3ZdBup0=
-github.com/pandatix/go-abnf v0.5.1 h1:iyLvSu2Aq12iE0r4n948Qw21BHDuckLq/8WIXAAF+HI=
-github.com/pandatix/go-abnf v0.5.1/go.mod h1:VBmbtpFgQNEaQpyAvmi+Ecd9wAYJKzA3TmiB3L93sVg=
+github.com/pandatix/go-abnf v0.5.3 h1:LA9AaxAqwzdxfDe7+HIGUB6tzx2N6wYVEAChmfsoPgo=
+github.com/pandatix/go-abnf v0.5.3/go.mod h1:AE0KD3/VNoCjGzc1gqetRKshbI4SYErXQ/8kPenR5mc=
 github.com/pascaldekloe/goe v0.1.0 h1:cBOtyMzM9HTpWjXfbbunk26uA6nG3a8n06Wieeh0MwY=
 github.com/pascaldekloe/goe v0.1.0/go.mod h1:lzWF7FIEvWOWxwDKqyGYQf6ZUaNfKdP144TG7ZOy1lc=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
@@ -173,8 +173,8 @@ github.com/prometheus/client_model v0.6.3 h1:O0jaTVAYNxTHYInEPFJt5I3+sN8zqBtVMPT
 github.com/prometheus/client_model v0.6.3/go.mod h1:gpN5P9S7Rr6Yr92PiQ+Ixvhf6JZEkF1dnxsYL2aPBEM=
 github.com/prometheus/common v0.4.1/go.mod h1:TNfzLD0ON7rHzMJeJkieUDPYmFC7Snx/y86RQel1bk4=
 github.com/prometheus/common v0.9.1/go.mod h1:yhUN8i9wzaXS3w1O07YhxHEBxD+W35wd8bs7vj7HSQ4=
-github.com/prometheus/common v0.73.0 h1:NGIOmVi8jrgiiPQgXxD6rP0FfxFsuZxnMQkel0qBy/g=
-github.com/prometheus/common v0.73.0/go.mod h1:Nt+CsVkf/mj4wDAmtSwq1HTPohHSX6fMr6+/f9B5UqM=
+github.com/prometheus/common v0.73.1 h1:SZWh/j4AvhCdhX8jvYSnxvPxhWlC9QZkjJ+tOrEr7kU=
+github.com/prometheus/common v0.73.1/go.mod h1:I9aA/Ukz9s1olOobh8KtCkU7B1mQPQsB9UvQPsUQ1Dk=
 github.com/prometheus/procfs v0.0.0-20181005140218-185b4288413d/go.mod h1:c3At6R/oaqEKCNdg8wHV1ftS6bRYblBhIjjI8uT2IGk=
 github.com/prometheus/procfs v0.0.2/go.mod h1:TjEm7ze935MbeOT/UhFTIMYKhuLP4wbCsTZCD3I8kEA=
 github.com/prometheus/procfs v0.0.8/go.mod h1:7Qr8sr6344vo1JqZ6HhLceV9o3AJ1Ff+GxbHq6oeK9A=
