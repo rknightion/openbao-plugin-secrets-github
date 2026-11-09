@@ -1,0 +1,22 @@
+{
+ "held": {},
+ "issues": {
+  "OBG-0001": {
+   "number": 95,
+   "url": "https://github.com/rknightion/openbao-plugin-secrets-github/issues/95"
+  },
+  "OBG-0002": {
+   "number": 96,
+   "url": "https://github.com/rknightion/openbao-plugin-secrets-github/issues/96"
+  },
+  "OBG-0003": {
+   "number": 97,
+   "url": "https://github.com/rknightion/openbao-plugin-secrets-github/issues/97"
+  }
+ },
+ "prefix": "OBG",
+ "repo": "rknightion/openbao-plugin-secrets-github",
+ "schema": 1,
+ "source_sha": "5dcbcbd66f9e130eba59fd78caf12b65ca1ab99a",
+ "synthetic": []
+}
