@@ -5,6 +5,8 @@ type: other
 created_date: '2026-08-14 16:09'
 updated_date: '2026-08-14 16:30'
 ---
+> The old `#N` issue numbers listed below belong to issues deleted from GitHub before the board era. They are not live issues.
+
 > **Historical index of work tracked on GitHub Issues before this repo moved to Backlog.md on
 > 2026-08-14.** **The issues were deleted from GitHub on 2026-08-14 and were not archived to a dump
 > file** — that was a deliberate call, so `gh issue view <N>` now 404s and **this document is the
@@ -12,7 +14,7 @@ updated_date: '2026-08-14 16:30'
 >
 > What was in them is not lost, because almost all of it had already been written down where it
 > belongs: the engine-side traps are in `AGENTS.md`, the plugin's config surface is in `docs/`, and
-> the camden deployment traps are in `~/repos/chat-personal/camden/openbao/CLAUDE.md` and
+> the the deploy host deployment traps are in `the private deployment notes` and
 > `runbooks/UPDATE-ROLLBACK.md`. The per-issue notes below carry the rest.
 >
 > One thing the deletion positively improved: the closing comment on `#1` published the GitHub App ID
@@ -87,7 +89,7 @@ not `hide_repository_metadata` as the issue body first said. Enabling it took a 
 ## Deleted earlier — 2026-08-11
 
 **#22, #23 and #26** were deleted on 2026-08-11, before this migration, after being archived verbatim
-to `~/repos/chat-personal/camden/openbao/archive/github-issues/`. That archive is their record.
+to `a private archive directory`. That archive is their record.
 
 | # | Subject | Citations still in this history |
 |---|---|---|
@@ -95,7 +97,7 @@ to `~/repos/chat-personal/camden/openbao/archive/github-issues/`. That archive i
 | #23 | the OIDC/CI rollout | 8 commits, **and the `CHANGELOG.md` entry for `f2c66f0`** |
 | #26 | splitting the `admin` ACL policy | 1 commit |
 
-They went because none of them changed a file in this repo — they were camden deployment work filed
+They went because none of them changed a file in this repo — they were the deploy host deployment work filed
 on the wrong tracker. That is the scope test `AGENTS.md` states, and these three are the concrete
 instance behind it.
 
