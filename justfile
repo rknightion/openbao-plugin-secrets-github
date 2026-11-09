@@ -70,3 +70,18 @@ image tag="openbao-plugin-secrets-github:dev":
 # run check plus image, which needs a Docker daemon for docker buildx
 [group('check')]
 ci: check image
+
+# GitHub issues and the rknightion Project; maintainers only (needs the tracker tools and credentials)
+[group('tracker')]
+[positional-arguments]
+tracker *args:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    export TRACKER_REPO=rknightion/openbao-plugin-secrets-github TRACKER_PROJECT_OWNER=rknightion TRACKER_PROJECT=7
+    export TRACKER_ISSUE_IDENTITY=app TRACKER_PROJECT_IDENTITY=user
+    exec tracker-with-token "$@"
+
+# print the issue a legacy board id (OBG-0001) became
+[group('tracker')]
+issue id:
+    TRACKER_REPO=rknightion/openbao-plugin-secrets-github tracker legacy {{ quote(id) }}
