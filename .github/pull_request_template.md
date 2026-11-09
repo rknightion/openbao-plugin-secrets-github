@@ -16,8 +16,8 @@ The problem it solves, with a link to the issue or bug report.
 ## Verified
 
 What you ran or observed, with before and after where behaviour changed. `just check` is the gate.
-Decoding EEPROM from real optics needs a Linux host with pluggable optics, which CI does not have:
-say whether you ran it on hardware.
+The integration tests need a live OpenBao and a real GitHub App, which CI does not have: say whether
+you ran them.
 
 ## Not verified
 
@@ -28,7 +28,7 @@ What you did not run or could not observe. Write "nothing" only if that is true.
 - [ ] `just check` passes
 - [ ] Tests added or updated where it makes sense
 - [ ] The title is a [Conventional Commit](https://www.conventionalcommits.org/) subject
-- [ ] Docs (README, flags, `docs/metrics.md`) updated if behaviour changed
+- [ ] Docs (README, `docs/`) updated if behaviour changed
 
 ## Issue
 
