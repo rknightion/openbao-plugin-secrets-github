@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.6](https://github.com/rknightion/openbao-plugin-secrets-github/compare/v0.1.5...v0.1.6) (2026-11-11)
+
+
+### Bug Fixes
+
+* **deps:** build with Go 1.27.4 ([#103](https://github.com/rknightion/openbao-plugin-secrets-github/issues/103)) ([76353d4](https://github.com/rknightion/openbao-plugin-secrets-github/commit/76353d4f6084bee8ba89c22fd5ceb7bdf361e594))
+
 ## [0.1.5](https://github.com/rknightion/openbao-plugin-secrets-github/compare/v0.1.4...v0.1.5) (2026-10-30)
 
 
