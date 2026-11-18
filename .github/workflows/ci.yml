@@ -76,19 +76,38 @@ jobs:
       contents: read
     uses: rknightion/.github/.github/workflows/privacy-sweep.yml@8f00b7fb896191e598f12ed565395697c539add1 # v1.26.9
 
-  # The Backlog.md board is retired: issues are the queue. A pull request may delete files under
-  # backlog/ or move them out, never add or change one there. Reads the file list from the API, so
-  # no pull request code is checked out.
-  backlog-freeze:
-    name: backlog/ is frozen
-    if: github.event_name == 'pull_request'
+  # zizmor fails a pull request on any finding (enforce); push runs upload SARIF instead.
+  zizmor:
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    uses: rknightion/.github/.github/workflows/zizmor.yml@e5b9f15bc8ccafdbad75e623bbd0dbb27127f049 # v1.28.0
+    with:
+      enforce: true
+
+  ci-success:
+    if: always()
+    needs: [test, image, ac-evidence, privacy-sweep, zizmor]
     runs-on: ubuntu-latest
-    timeout-minutes: 5
     permissions:
       contents: read
       pull-requests: read
     steps:
+      - name: Check results
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: |
+          if printf '%s' "$NEEDS" | grep -q '"result": *"failure"\|"result": *"cancelled"'; then
+            echo "::error::a required job failed"
+            exit 1
+          fi
+          echo "all jobs passed"
+      # The retired backlog is frozen. Read the PR's file list without checking out its code.
       - name: Refuse additions and changes under backlog/
+        id: backlog-freeze
+        if: ${{ !cancelled() && github.event_name == 'pull_request' }}
+        timeout-minutes: 5
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
@@ -114,38 +133,14 @@ jobs:
           fi
           echo "No file under backlog/ is added or changed."
 
-  # zizmor fails a pull request on any finding (enforce); push runs upload SARIF instead.
-  zizmor:
-    permissions:
-      contents: read
-      security-events: write
-      actions: read
-    uses: rknightion/.github/.github/workflows/zizmor.yml@e5b9f15bc8ccafdbad75e623bbd0dbb27127f049 # v1.28.0
-    with:
-      enforce: true
-
-  ci-success:
-    if: always()
-    needs: [test, image, ac-evidence, privacy-sweep, backlog-freeze, zizmor]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check results
-        env:
-          NEEDS: ${{ toJSON(needs) }}
-        run: |
-          if printf '%s' "$NEEDS" | grep -q '"result": *"failure"\|"result": *"cancelled"'; then
-            echo "::error::a required job failed"
-            exit 1
-          fi
-          echo "all jobs passed"
       # A skipped job reports success, so on a pull request the pull request checks must have
       # actually run and passed.
       - name: Fail if a pull request check did not run
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ always() && github.event_name == 'pull_request' }}
         env:
           AC_EVIDENCE: ${{ needs.ac-evidence.result }}
           PRIVACY_SWEEP: ${{ needs.privacy-sweep.result }}
-          BACKLOG_FREEZE: ${{ needs.backlog-freeze.result }}
+          BACKLOG_FREEZE: ${{ steps.backlog-freeze.outcome }}
           ZIZMOR: ${{ needs.zizmor.result }}
         run: |
           if [[ "$AC_EVIDENCE" != "success" || "$PRIVACY_SWEEP" != "success" || "$BACKLOG_FREEZE" != "success" || "$ZIZMOR" != "success" ]]; then
