@@ -1,0 +1,1 @@
+Synthetic CI failure control.
