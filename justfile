@@ -11,6 +11,19 @@ setup:
     command -v govulncheck >/dev/null || go install golang.org/x/vuln/cmd/govulncheck@latest
     command -v goimports >/dev/null || go install golang.org/x/tools/cmd/goimports@latest
 
+# Install pinned source-gate tools and warm the Go build cache for Cursor Cloud.
+[script('bash')]
+cloud-bootstrap:
+    set -euo pipefail
+    export GOBIN="$(go env GOPATH)/bin"
+    export PATH="$GOBIN:$PATH"
+    go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0
+    go install golang.org/x/vuln/cmd/govulncheck@v1.10.0
+    go install golang.org/x/tools/cmd/goimports@v0.53.0
+    just setup </dev/null
+    go build -mod=readonly -o /dev/null ./...
+    go test -mod=readonly -race -cover -c -o /dev/null ./...
+
 # format Go source and this justfile in place
 [group('check')]
 fmt:
