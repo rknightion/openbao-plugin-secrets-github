@@ -65,7 +65,7 @@ jobs:
       contents: read
       issues: read
       pull-requests: read
-    uses: rknightion/.github/.github/workflows/ac-evidence.yml@18c5119e3b14f88ba77d773a8bddd8b05b7b5dac # v1.30.12
+    uses: rknightion/.github/.github/workflows/ac-evidence.yml@0e637bfda82f83329a87463eb9f56037a4fff773 # v1.30.14
 
   # The lines a pull request adds carry no identifier, email address, public address or credential
   # shape. The reusable fails on any event but pull_request, so it runs on pull requests only.
@@ -74,7 +74,7 @@ jobs:
     if: github.event_name == 'pull_request'
     permissions:
       contents: read
-    uses: rknightion/.github/.github/workflows/privacy-sweep.yml@18c5119e3b14f88ba77d773a8bddd8b05b7b5dac # v1.30.12
+    uses: rknightion/.github/.github/workflows/privacy-sweep.yml@0e637bfda82f83329a87463eb9f56037a4fff773 # v1.30.14
 
   # zizmor fails a pull request on any finding (enforce); push runs upload SARIF instead.
   zizmor:
@@ -82,7 +82,7 @@ jobs:
       contents: read
       security-events: write
       actions: read
-    uses: rknightion/.github/.github/workflows/zizmor.yml@18c5119e3b14f88ba77d773a8bddd8b05b7b5dac # v1.30.12
+    uses: rknightion/.github/.github/workflows/zizmor.yml@0e637bfda82f83329a87463eb9f56037a4fff773 # v1.30.14
     with:
       enforce: true
 
