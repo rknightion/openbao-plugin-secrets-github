@@ -21,7 +21,7 @@ jobs:
     permissions:
       contents: read
       packages: write # delete package versions
-    uses: rknightion/.github/.github/workflows/ghcr-cleanup.yml@a8c1551d0fb03eb51f49c986b86cae4cd1cd2cf1 # v1.30.34
+    uses: rknightion/.github/.github/workflows/ghcr-cleanup.yml@14df04efdbf083f66969b5edcf7aa5ddb80e66cc # v1.30.35
     with:
       packages: "openbao-plugin-secrets-github"
       # Scheduled runs prune for real; a manual dispatch defaults to dry-run.
