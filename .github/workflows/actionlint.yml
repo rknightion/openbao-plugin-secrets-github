@@ -9,4 +9,4 @@ jobs:
   actionlint:
     permissions:
       contents: read
-    uses: rknightion/.github/.github/workflows/actionlint.yml@14df04efdbf083f66969b5edcf7aa5ddb80e66cc # v1.30.35
+    uses: rknightion/.github/.github/workflows/actionlint.yml@77faed457d4f87675fec4024e2cd526fe964d7c9 # v1.30.36
