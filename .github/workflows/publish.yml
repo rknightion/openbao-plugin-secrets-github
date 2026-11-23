@@ -34,6 +34,8 @@ jobs:
     permissions:
       contents: write
       packages: write
+      id-token: write # keyless signing identity for the attestations
+      attestations: write # build-provenance attestations
     steps:
       - name: Resolve tag
         id: tag
@@ -138,6 +140,54 @@ jobs:
           cd dist && sha256sum openbao-plugin-secrets-github_* > checksums.txt
           cat checksums.txt
 
+      - name: Install verified Trivy release
+        env:
+          RUNNER_ARCH: ${{ runner.arch }}
+        run: |
+          set -euo pipefail
+          version=0.70.0
+          case "$RUNNER_ARCH" in
+            X64) arch=Linux-64bit ;;
+            ARM64) arch=Linux-ARM64 ;;
+            *) echo "Unsupported Trivy runner architecture: $RUNNER_ARCH" >&2; exit 1 ;;
+          esac
+          scratch=$(mktemp -d "$RUNNER_TEMP/trivy-download.XXXXXX")
+          trap 'rm -rf "$scratch"' EXIT
+          asset="trivy_${version}_${arch}.tar.gz"
+          base="https://github.com/aquasecurity/trivy/releases/download/v${version}"
+          for name in "$asset" "trivy_${version}_checksums.txt"; do
+            curl --retry 5 --retry-all-errors --retry-delay 2 --retry-max-time 120 \
+              --connect-timeout 20 --max-time 60 --fail --location --silent --show-error \
+              --proto '=https' --proto-redir '=https' --output "$scratch/$name" "$base/$name"
+          done
+          cd "$scratch"
+          awk -v asset="$asset" '$2 == asset {print}' "trivy_${version}_checksums.txt" > selected.sha256
+          test "$(wc -l < selected.sha256)" -eq 1
+          sha256sum --check --strict selected.sha256
+          tar -xzf "$asset" trivy
+          install -d "$RUNNER_TEMP/trivy-bin"
+          install -m 0755 trivy "$RUNNER_TEMP/trivy-bin/trivy"
+          "$RUNNER_TEMP/trivy-bin/trivy" --version
+          echo "$RUNNER_TEMP/trivy-bin" >> "$GITHUB_PATH"
+
+      - name: Scan the built binaries for known vulnerabilities
+        # Read-only: scans dist/ and changes nothing, so the checksums above
+        # (the sha256 OpenBao pins) are untouched. Runs before login and push, so
+        # an unaccepted HIGH/CRITICAL finding stops the release before any image
+        # is published. Unfixed findings are ignored: nothing can be done about them.
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          skip-setup-trivy: true
+          scan-type: rootfs
+          scan-ref: dist
+          scanners: vuln
+          severity: CRITICAL,HIGH
+          exit-code: "1"
+          ignore-unfixed: true
+          format: table
+          # The action's cache writes a new dated Actions-cache entry every day.
+          cache: false
+
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
@@ -147,6 +197,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push image
+        id: push
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
@@ -155,6 +206,20 @@ jobs:
           push: true
           tags: |
             ghcr.io/rknightion/openbao-plugin-secrets-github:${{ steps.tag.outputs.tag }}
+
+      # Attestations are separate artifacts: they add no input to the build and
+      # leave the binaries and the image layers byte-identical.
+      - name: Attest image build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-name: ghcr.io/rknightion/openbao-plugin-secrets-github
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
+
+      - name: Attest binary build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-checksums: dist/checksums.txt
 
       - name: Verify pushed image matches checksums.txt
         # The Containerfile just COPYs dist/..._linux_${arch} into the
