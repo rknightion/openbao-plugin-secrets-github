@@ -60,15 +60,17 @@ jobs:
       image-ref: ghcr.io/rknightion/openbao-plugin-secrets-github
 
   # Same image path a stable release takes, just with an RC tag. publish.yml's
-  # own job here only pushes the image via docker/build-push-action (no cosign,
-  # no attestations, no Trivy scan), so it needs no more than contents/packages
-  # write -- matching exactly what publish.yml's own `publish` job declares.
+  # own job scans the binaries with Trivy, pushes the image via
+  # docker/build-push-action and attests build provenance (no cosign), so the
+  # caller must grant at least what publish.yml's own `publish` job declares.
   publish:
     needs: rc
     if: needs.rc.outputs.tag != ''
     permissions:
       contents: write # attach binaries + checksums to the RC release
       packages: write # push the image to GHCR
+      id-token: write # keyless signing identity for the attestations
+      attestations: write # build-provenance attestations
     # `./` here, not the newer `$/` self-repository form zizmor prefers:
     # actionlint (pinned in the shared reusable) does not parse `$/` yet. For a
     # job-level reusable workflow call `./` already resolves at the caller's own
