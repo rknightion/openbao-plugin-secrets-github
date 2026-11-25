@@ -198,15 +198,3 @@ file beside them.
 - Older commits and docs cite legacy board ids such as `OBG-0001`. `just issue <ID>` prints the issue
   each one became; `.github/tracker/id-map.json` is the map. The retired board's documents, including
   the index of the deleted pre-board issues, are in `.github/tracker/history/`.
-
-## Cursor Cloud specific instructions
-
-Run `export PATH="$(go env GOPATH)/bin:$PATH"` from the checkout root to use the source-check
-tools installed during the environment build.
-
-- Fast check `just fmt-check verify-no-vault-sdk </dev/null`.
-- Full gate `just check </dev/null`. The audit needs the public Go vulnerability database.
-
-The portable gate runs with in-memory storage and compiles the integration test tag during lint.
-Go integration tests require a live OpenBao instance and GitHub App credentials. The image build
-in `just ci` requires Docker.
