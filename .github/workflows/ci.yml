@@ -62,7 +62,7 @@ jobs:
     if: github.event_name == 'pull_request'
     permissions:
       contents: read
-    uses: rknightion/.github/.github/workflows/privacy-sweep.yml@7ed87713176ccae972b0143071b0196ff370d804 # v1.32.3
+    uses: rknightion/.github/.github/workflows/privacy-sweep.yml@0bb3cc94c03a011b4ba8c86d9716898211de2d2b # v1.32.4
 
   # zizmor fails a pull request on any finding (enforce); push runs upload SARIF instead.
   zizmor:
@@ -70,7 +70,7 @@ jobs:
       contents: read
       security-events: write
       actions: read
-    uses: rknightion/.github/.github/workflows/zizmor.yml@7ed87713176ccae972b0143071b0196ff370d804 # v1.32.3
+    uses: rknightion/.github/.github/workflows/zizmor.yml@0bb3cc94c03a011b4ba8c86d9716898211de2d2b # v1.32.4
     with:
       enforce: true
 
