@@ -64,7 +64,7 @@ jobs:
       # depends on this step having succeeded.
       - name: Mint a scoped installation token through the broker
         id: tok
-        uses: rknightion/.github/.github/actions/broker-token@b31fba795a67b1a413ec1e11a7cd4ac9c2447f15 # v1.32.7
+        uses: rknightion/.github/.github/actions/broker-token@47976d7e85fddb1c3c329cc870612b59ac433849 # v1.32.8
         with:
           permission-set: release-please-openbao-plugin-secrets-github
           tailscale-client-id: ${{ secrets.TS_WIF_CLIENT_ID }}
