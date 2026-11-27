@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.6](https://github.com/rknightion/openbao-plugin-secrets-github/compare/v0.1.5...v0.1.6) (2026-11-27)
+
+
+### Bug Fixes
+
+* **deps:** build with Go 1.27.4 ([#103](https://github.com/rknightion/openbao-plugin-secrets-github/issues/103)) ([76353d4](https://github.com/rknightion/openbao-plugin-secrets-github/commit/76353d4f6084bee8ba89c22fd5ceb7bdf361e594))
+* **deps:** update module github.com/prometheus/common to v0.74.0 ([#114](https://github.com/rknightion/openbao-plugin-secrets-github/issues/114)) ([9c93914](https://github.com/rknightion/openbao-plugin-secrets-github/commit/9c93914d09448f8bb9e957485e408504334f4d1d))
+
 ## [0.1.5](https://github.com/rknightion/openbao-plugin-secrets-github/compare/v0.1.4...v0.1.5) (2026-10-30)
 
 
